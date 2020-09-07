@@ -55,6 +55,29 @@ This will build and deploy the authorization server to http://localhost:8180.
 
 Note: This has only been tested using Java 11.
 
+## Workflow Overview
+
+The cpcds-auth-server works in coordination with three other components:
+ - [cpcds-server-ri](https://github.com/carin-alliance/cpcds-server-ri) the reference fhir server
+ - your application
+ - the user's web browser
+ 
+Data is exchanged between the four components as follows:
+
+|  fhir server               |  auth server                 |  app                |  user               |
+| -------------------------- | ---------------------------- | ------------------- | ------------------- |
+| start the fhir server      | start the auth-server        | start your app      |                     |
+|                            |                              | send user to auth   |                     |
+|                            |                              |                     | visit auth page     |
+|                            | serve auth page              |                     |                     |
+|                            |                              |                     | enter credentials   |
+|                            | redirect with auth code      |                     |                     |
+|                            |                              | receive auth code   |                     |
+|                            |                              | request token       |                     |
+|                            | give token                   |                     |                     |
+|                            |                              | request data        |                     |
+| give data                  |                              |                     |                     |
+
 ## User and Client Registration
 
 The authorization sequence relies on a valid client and user being registered with the system. In the image of this server on docker hub a few users and clients are already loaded. A web interface is provided at `/register/user` and `/register/client` to register a new user and client respectively. These two interfaces use the underlying POST requests described in the next section to complete the registration process.
@@ -133,8 +156,8 @@ Example:
 
 ```
 GET http://localhost:8180/authorization?response_type=code&
-      client_id=user689&redirect_uri=http://localhost:3000/index&
-      scope=patient/*.read&state=12345abc&aud=http://localhost:8180
+      client_id=a12c5a8a-0288-4502-9190-5ddf79145938&redirect_uri=http://localhost:3000/index&
+      scope=patient/*.read&state=12345abc&aud=http://localhost:8080
 ```
 
 The response to the GET request is a redirection to the provided `redirect_uri` with the following query parameters:
